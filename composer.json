@@ -1,0 +1,25 @@
+{
+  "name": "thoronir42/settings",
+  "description": "Settings library built on Kdyby/Doctrine",
+  "type": "library",
+  "require": {
+    "kdyby/doctrine": "^3.1",
+    "thoronir42/doctrine-model": "dev-master"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Thoronir42",
+      "email": "Thoronir42@Gmail.com"
+    }
+  ],
+  "autoload":{
+    "classmap": ["src/"]
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:Thoronir42/doctrine-model.git"
+    }
+  ]
+}
