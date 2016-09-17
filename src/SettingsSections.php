@@ -1,20 +1,20 @@
 <?php
 
-namespace Thoronir42\Settings;
+namespace SeStep\Settings;
 
-use Thoronir42\Model\BaseRepository;
+use SeStep\Model\BaseDoctrineService;
 
-class SettingsSections extends BaseRepository
+class SettingsSections extends BaseDoctrineService
 {
     protected $entity_class = SettingsSection::class;
 
     public function findAllOrdered()
     {
-        return $this->findBy([], ['domain' => 'ASC']);
+        return $this->repository->findBy([], ['domain' => 'ASC']);
     }
 
     public function findByDomain($domain)
     {
-        return $this->findOneBy(['domain' => $domain]);
+        return $this->repository->findOneBy(['domain' => $domain]);
     }
 }

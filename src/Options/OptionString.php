@@ -1,6 +1,6 @@
 <?php
 
-namespace Thoronir42\Settings\Options;
+namespace SeStep\Settings\Options;
 
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;

@@ -1,11 +1,11 @@
 <?php
 
-namespace Thoronir42\Settings;
+namespace SeStep\Settings;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
-use Thoronir42\Model\BaseEntity;
+use SeStep\Model\BaseEntity;
 
 /**
  * Class SettingsSection

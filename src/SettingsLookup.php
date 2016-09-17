@@ -1,6 +1,6 @@
 <?php
 
-namespace Thoronir42\Settings;
+namespace SeStep\Settings;
 
 /**
  * Class SettingsLookup

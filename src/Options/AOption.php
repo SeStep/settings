@@ -1,12 +1,12 @@
 <?php
 
-namespace Thoronir42\Settings\Options;
+namespace SeStep\Settings\Options;
 
 
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
-use Thoronir42\Model\BaseEntity;
-use Thoronir42\Settings\SettingsSection;
+use SeStep\Model\BaseEntity;
+use SeStep\Settings\SettingsSection;
 
 /**
  * @ORM\Entity

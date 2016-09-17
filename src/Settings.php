@@ -1,10 +1,11 @@
 <?php
 
-namespace Thoronir42\Settings;
+namespace SeStep\Settings;
 
 
 use Nette\InvalidArgumentException;
 use Nette\InvalidStateException;
+use SeStep\Settings\Options\AOption;
 
 /**
  * @property        SettingsSection $general
@@ -31,7 +32,7 @@ class Settings
 
     public function fetchAll()
     {
-        return $this->options->findAll();
+        return $this->options->findAllOrdered();
     }
 
     /**

@@ -1,11 +1,7 @@
 {
-  "name": "thoronir42/settings",
+  "name": "sestep/settings",
   "description": "Settings library built on Kdyby/Doctrine",
   "type": "library",
-  "require": {
-    "kdyby/doctrine": "^3.1",
-    "thoronir42/doctrine-model": "dev-master"
-  },
   "license": "MIT",
   "authors": [
     {
@@ -13,13 +9,17 @@
       "email": "Thoronir42@Gmail.com"
     }
   ],
-  "autoload":{
+  "require": {
+    "kdyby/doctrine": "^3.1",
+    "sestep/doctrine-model": "dev-master"
+  },
+  "autoload": {
     "classmap": ["src/"]
   },
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@github.com:Thoronir42/doctrine-model.git"
+      "url": "git@github.com:sestep/doctrine-model.git"
     }
   ]
 }
