@@ -1,6 +1,6 @@
 {
-  "name": "sestep/settings",
-  "description": "Settings library built on Kdyby/Doctrine",
+  "name": "sestep/settings-doctrine",
+  "description": "Kdyby/Doctrine implementation of sestep/settings-interface built on sestep/doctrine-model",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -10,16 +10,25 @@
     }
   ],
   "require": {
-    "kdyby/doctrine": "^3.1",
+    "sestep/settings-interface": "dev-master",
     "sestep/doctrine-model": "dev-master"
   },
   "autoload": {
-    "classmap": ["src/"]
+    "classmap": [
+      "src/"
+    ]
   },
   "repositories": [
     {
       "type": "vcs",
+      "url": "git@github.com:sestep/settings-interface.git"
+    },
+    {
+      "type": "vcs",
       "url": "git@github.com:sestep/doctrine-model.git"
     }
-  ]
+  ],
+  "suggest": {
+    "sestep/settings-control": "For a Nette control implementation of settings user interface"
+  }
 }

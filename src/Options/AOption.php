@@ -1,99 +1,82 @@
 <?php
 
-namespace SeStep\Settings\Options;
+namespace SeStep\SettingsDoctrine\Options;
 
 
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
 use SeStep\Model\BaseEntity;
-use SeStep\Settings\SettingsSection;
+use SeStep\SettingsInterface\Options\IOption;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="option")
+ * @ORM\Table(name="options_value")
  *
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn("option_type", columnDefinition="ENUM('string', 'bool', 'int')")
- * @ORM\DiscriminatorMap({"string" = "OptionString", "bool" = "OptionBool", "int" = "OptionInt"})
+ * @ORM\DiscriminatorMap({"string" = "OptionTypeString", "bool" = "OptionTypeBool", "int" = "OptionTypeInt"})
  *
- * @property		int $id
- * @property		string $domain
- * @property		string $title
- * @property		SettingsSection $section
+ * @property-read    int $id
+ * @property        string $name
+ * @property        OptionsSection $section
  */
-abstract class AOption extends BaseEntity
+abstract class AOption extends BaseEntity implements IOption
 {
-	const TYPE_STRING = 'string';
-	const TYPE_BOOL = 'bool';
-	const TYPE_INT = 'int';
+    use Identifier;
 
-	use Identifier;
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     */
+    protected $caption;
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+    /**
+     * @var OptionsSection
+     * @ORM\ManyToOne(targetEntity="OptionsSection")
+     * @ORM\JoinColumn(name="parent_section_id", referencedColumnName="id")
+     */
+    protected $section;
 
-	/** @ORM\Column(type="string") */
-	protected $domain;
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-	/** @ORM\Column(type="string") */
-	protected $title;
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
 
-	/**
-	 * @ORM\ManyToOne(targetEntity="Thoronir42\Settings\SettingsSection")
-	 * @ORM\JoinColumn(name="section_id", referencedColumnName="id")
-	 */
-	protected $section;
+    /**
+     * @return OptionsSection
+     */
+    public function getSection()
+    {
+        return $this->section;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getDomain()
-	{
-		return $this->domain;
-	}
+    /**
+     * @param OptionsSection $section
+     */
+    public function setSection($section)
+    {
+        $this->section = $section;
+    }
 
-	/**
-	 * @param string $domain
-	 */
-	public function setDomain($domain)
-	{
-		$this->domain = $domain;
-	}
 
-	/**
-	 * @return string
-	 */
-	public function getTitle()
-	{
-		return $this->title;
-	}
+    public abstract function getValue();
 
-	/**
-	 * @param string $title
-	 */
-	public function setTitle($title)
-	{
-		$this->title = $title;
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getSection()
-	{
-		return $this->section;
-	}
-
-	/**
-	 * @param mixed $section
-	 */
-	public function setSection($section)
-	{
-		$this->section = $section;
-	}
-
-	
-
-	public abstract function getValue();
-
-	public abstract function setValue($value);
+    public abstract function setValue($value);
 
 
 }

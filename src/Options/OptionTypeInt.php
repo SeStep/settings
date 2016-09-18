@@ -1,6 +1,6 @@
 <?php
 
-namespace SeStep\Settings\Options;
+namespace SeStep\SettingsDoctrine\Options;
 
 use Doctrine\ORM\Mapping as ORM;
 use Nette\InvalidArgumentException;
@@ -10,7 +10,7 @@ use Nette\InvalidArgumentException;
  *
  * @ORM\Entity
  */
-class OptionInt extends AOption
+class OptionTypeInt extends AOption
 {
 	/** @ORM\Column(type="integer")  */
 	protected $int;
