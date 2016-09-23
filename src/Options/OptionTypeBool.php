@@ -3,6 +3,8 @@
 namespace SeStep\SettingsDoctrine\Options;
 
 use Doctrine\ORM\Mapping as ORM;
+use SeStep\SettingsInterface\Options\IOption;
+use SeStep\SettingsInterface\Options\IOptions;
 
 /**
  * @ORM\Entity
@@ -23,11 +25,24 @@ class OptionTypeBool extends OptionTypeInt
         $this->bool = (int)((boolean)$bool);
     }
 
+    public function hasValues()
+    {
+        return true;
+    }
+
     public function getValues()
     {
         return [
             true => 'Yes',
             false => 'No',
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return IOptions::TYPE_BOOL;
     }
 }

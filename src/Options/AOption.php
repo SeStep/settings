@@ -3,6 +3,7 @@
 namespace SeStep\SettingsDoctrine\Options;
 
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
 use SeStep\Model\BaseEntity;
@@ -78,5 +79,55 @@ abstract class AOption extends BaseEntity implements IOption
 
     public abstract function setValue($value);
 
+    /** @return string */
+    public function getCaption()
+    {
+        return $this->caption;
+    }
 
+    public function setCaption($caption)
+    {
+        $caption = $caption ?: '';
+        if (!is_string($caption)) {
+            throw new InvalidArgumentException('Caption must be a string, ' . gettype($caption) . ' given');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getDomain()
+    {
+        return $this->section->getDomain();
+    }
+
+    /**
+     * Returns fully qualified name. That is in most cases concatenated getDomain() and getName().
+     * @return mixed
+     */
+    public function getFQN()
+    {
+        return $this->getDomain() . '.' . $this->getName();
+    }
+
+    /**
+     * @return string
+     */
+    public abstract function getType();
+
+    /**
+     * @return boolean
+     */
+    public function hasValues()
+    {
+        return false;
+    }
+
+    /**
+     * @return string[]|int[]
+     */
+    public function getValues()
+    {
+        return [];
+    }
 }

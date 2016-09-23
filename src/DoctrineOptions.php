@@ -54,8 +54,13 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
     {
         $return = [];
         foreach ($this->findAllOrdered() as $option) {
-            $return[$option->getSection() . '.' . $option->getName()] = new ReadOnlyOption($option);
+            $return[$option->getSection()->getDomain() . '.' . $option->getName()] = new ReadOnlyOption($option);
         }
+    }
+
+    public function getOption($name, $domain = '')
+    {
+        return $this->findOption($name, $domain);
     }
 
     /**
@@ -63,7 +68,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
      * @param string $domain
      * @return AOption
      */
-    private function getOption($name, $domain = '')
+    private function findOption($name, $domain = '')
     {
         $parts = $this->splitLocator($name, $domain);
 
@@ -119,7 +124,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
      */
     public function getSections()
     {
-        return $this->sections->findBy([], ['domain' => 'ASC', ''])
+        return $this->sections->findBy([], ['domain' => 'ASC']);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace SeStep\SettingsDoctrine\Options;
 
 use Doctrine\ORM\Mapping as ORM;
 use Nette\InvalidArgumentException;
+use SeStep\SettingsInterface\Options\IOptions;
 
 /**
  * @property	int		$value
@@ -35,4 +36,11 @@ class OptionTypeInt extends AOption
 	}
 
 
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return IOptions::TYPE_INT;
+    }
 }

@@ -4,6 +4,7 @@ namespace SeStep\SettingsDoctrine\Options;
 
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use SeStep\SettingsInterface\Options\IOptions;
 
 /**
  * @ORM\Entity
@@ -31,4 +32,12 @@ class OptionTypeString extends AOption
 		}
 		$this->string = $string;
 	}
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return IOptions::TYPE_STRING;
+    }
 }

@@ -125,6 +125,8 @@ class OptionsSection extends BaseEntity implements IOptionsSection
     public function getValue($name, $domain = '')
     {
         $option = $this->getOption($name, $domain);
+
+        return $option->getValues();
     }
 
     public function removeOption($option, $domain = '')
