@@ -12,25 +12,21 @@ use SeStep\SettingsInterface\Options\IOptions;
 class OptionTypeString extends AOption
 {
 	/** @ORM\Column(type="string", length=512)  */
-	protected $string;
+	protected $string_val;
 
-	/**
-	 * @return int
-	 */
+	/** @return string */
 	public function getValue()
 	{
-		return $this->string;
+		return $this->string_val;
 	}
 
-	/**
-	 * @param string $string
-	 */
+	/** @param string $string */
 	public function setValue($string)
 	{
 		if(!is_string($string)){
 			throw new InvalidArgumentException('String option must not receive a ' . gettype($string) .' value');
 		}
-		$this->string = $string;
+		$this->string_val = $string;
 	}
 
     /**

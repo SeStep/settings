@@ -7,21 +7,19 @@ use Nette\InvalidArgumentException;
 use SeStep\SettingsInterface\Options\IOptions;
 
 /**
- * @property	int		$value
- *
  * @ORM\Entity
  */
 class OptionTypeInt extends AOption
 {
 	/** @ORM\Column(type="integer")  */
-	protected $int;
+	protected $int_val;
 
 	/**
 	 * @return int
 	 */
 	public function getValue()
 	{
-		return $this->int;
+		return $this->int_val;
 	}
 
 	/**
@@ -32,7 +30,7 @@ class OptionTypeInt extends AOption
 		if(!is_integer($int)){
 			throw new InvalidArgumentException('Int option must not receive a ' . gettype($int) .' value');
 		}
-		$this->int = $int;
+		$this->int_val = $int;
 	}
 
 

@@ -6,20 +6,18 @@ namespace SeStep\SettingsDoctrine\Options;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
+use Nette\Utils\Strings;
 use SeStep\Model\BaseEntity;
+use SeStep\SettingsInterface\DomainLocator;
 use SeStep\SettingsInterface\Options\IOption;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="options_value")
+ * @ORM\Table(name="options__value")
  *
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn("option_type", columnDefinition="ENUM('string', 'bool', 'int')")
  * @ORM\DiscriminatorMap({"string" = "OptionTypeString", "bool" = "OptionTypeBool", "int" = "OptionTypeInt"})
- *
- * @property-read    int $id
- * @property        string $name
- * @property        OptionsSection $section
  */
 abstract class AOption extends BaseEntity implements IOption
 {
@@ -36,11 +34,20 @@ abstract class AOption extends BaseEntity implements IOption
      */
     protected $name;
     /**
-     * @var OptionsSection
+     * @var OptionsSection|null
      * @ORM\ManyToOne(targetEntity="OptionsSection")
      * @ORM\JoinColumn(name="parent_section_id", referencedColumnName="id")
      */
     protected $section;
+
+    /**
+     * AOption constructor.
+     * @param string $name
+     */
+    public function __construct($name)
+    {
+        $this->setName($name);
+    }
 
     /**
      * @return string
@@ -55,7 +62,7 @@ abstract class AOption extends BaseEntity implements IOption
      */
     public function setName($name)
     {
-        $this->name = $name;
+        $this->name = self::sanitizeName($name);
     }
 
     /**
@@ -69,7 +76,7 @@ abstract class AOption extends BaseEntity implements IOption
     /**
      * @param OptionsSection $section
      */
-    public function setSection($section)
+    public function setSection(OptionsSection $section = null)
     {
         $this->section = $section;
     }
@@ -87,10 +94,11 @@ abstract class AOption extends BaseEntity implements IOption
 
     public function setCaption($caption)
     {
-        $caption = $caption ?: '';
         if (!is_string($caption)) {
             throw new InvalidArgumentException('Caption must be a string, ' . gettype($caption) . ' given');
         }
+
+        $this->caption = $caption;
     }
 
     /**
@@ -98,7 +106,7 @@ abstract class AOption extends BaseEntity implements IOption
      */
     public function getDomain()
     {
-        return $this->section->getDomain();
+        return $this->section ? $this->section->getFQN() : '';
     }
 
     /**
@@ -107,7 +115,7 @@ abstract class AOption extends BaseEntity implements IOption
      */
     public function getFQN()
     {
-        return $this->getDomain() . '.' . $this->getName();
+        return DomainLocator::concatFQN($this->getName(), $this->getDomain());
     }
 
     /**
@@ -129,5 +137,10 @@ abstract class AOption extends BaseEntity implements IOption
     public function getValues()
     {
         return [];
+    }
+
+    public static function sanitizeName($name)
+    {
+        return Strings::replace($name, '%[-\.]%', '_');
     }
 }

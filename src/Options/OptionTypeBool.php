@@ -16,13 +16,13 @@ class OptionTypeBool extends OptionTypeInt
     /** @return boolean */
     public function getValue()
     {
-        return (boolean)$this->int;
+        return (boolean)$this->int_val;
     }
 
     /** @param boolean $bool */
     public function setValue($bool)
     {
-        $this->bool = (int)((boolean)$bool);
+        $this->int_val = (int)((boolean)$bool);
     }
 
     public function hasValues()

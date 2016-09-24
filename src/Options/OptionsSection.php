@@ -6,10 +6,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
+use Kdyby\Doctrine\InvalidArgumentException;
 use Kdyby\Doctrine\NotImplementedException;
 use RuntimeException;
 use SeStep\Model\BaseEntity;
-use SeStep\SettingsInterface\DomainLookup;
+use SeStep\SettingsInterface\DomainLocator;
+use SeStep\SettingsInterface\Exceptions\OptionsSectionNotFoundException;
 use SeStep\SettingsInterface\Options\IOption;
 use SeStep\SettingsInterface\Options\IOptionsSection;
 use SeStep\SettingsInterface\Options\ReadOnlyOption;
@@ -20,18 +22,10 @@ use SeStep\SettingsInterface\Options\ReadOnlyOption;
  *
  * @ORM\Entity
  * @ORM\Table("options__section")
- *
- * @property        string $caption
- * @property        string $domain
- *
- * @property        OptionsSection $parentSection
- * @property        Collection|OptionsSection[] $subsections
- * @property        Collection|AOption[] $options
  */
 class OptionsSection extends BaseEntity implements IOptionsSection
 {
     use Identifier;
-    use DomainLookup;
 
     /**
      * @var string
@@ -40,9 +34,14 @@ class OptionsSection extends BaseEntity implements IOptionsSection
     protected $caption;
     /**
      * @var string
-     * @ORM\Column(type="string", length=320)
+     * @ORM\Column(type="string", length=320, nullable=true)
      */
     protected $domain;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=48)
+     */
+    protected $name;
     /**
      * @var OptionsSection
      * @ORM\ManyToOne(targetEntity="OptionsSection")
@@ -51,19 +50,23 @@ class OptionsSection extends BaseEntity implements IOptionsSection
     protected $parentSection;
     /**
      * @var OptionsSection[]|Collection
-     * @ORM\OneToMany(targetEntity="SettingsSection", mappedBy="parent_section")
+     * @ORM\OneToMany(targetEntity="OptionsSection", mappedBy="parentSection")
      */
     protected $subsections;
     /**
      * @var AOption[]|Collection
-     * @ORM\OneToMany(targetEntity="SeStep\SettingsDoctrine\Options\AOption", mappedBy="section")
+     * @ORM\OneToMany(targetEntity="AOption", mappedBy="section")
      * @ORM\OrderBy({"name" = "ASC"})
      */
     protected $options;
 
-    public function __construct()
+    public function __construct($name, OptionsSection $parent = null)
     {
         $this->options = new ArrayCollection();
+        $this->subsections = new ArrayCollection();
+
+        $this->setName($name);
+        $this->setParentSection($parent);
     }
 
     /** @return ReadOnlyOption[] */
@@ -83,21 +86,23 @@ class OptionsSection extends BaseEntity implements IOptionsSection
      * @param bool $adjust_locator
      * @return AOption
      */
-    protected function getOption($name, $domain = '', $adjust_locator = true)
+    public function getOption($name, $domain = '', $adjust_locator = true)
     {
         if ($adjust_locator) {
-            list($name, $domain) = $this->splitLocator($name, $domain);
+            $locator = DomainLocator::create($name, $domain);
+            $name = $locator->name;
+            $domain = $locator->domain;
         }
 
         if ($domain) {
-            list($next, $rest) = $this->splitDomain($domain);
-            $section = $this->getSection($this->domain . $next);
+            $domainLocator = DomainLocator::create($domain);
+            $section = $this->getSection($this->domain . $domainLocator->domainStart);
 
-            return $section->getOption($name, $rest, false);
+            return $section->getOption($name, $domainLocator->domainRest, false);
         }
 
         foreach ($this->options as $option) {
-            if($option->getName() == $name){
+            if ($option->getName() == $name) {
                 return $option;
             }
         }
@@ -154,7 +159,7 @@ class OptionsSection extends BaseEntity implements IOptionsSection
     /**
      * @param string $domain
      * @return OptionsSection
-     * @throws RuntimeException Occurs when subsection of defined domain does not exist.
+     * @throws OptionsSectionNotFoundException Occurs when subsection of defined domain does not exist.
      */
     public function getSection($domain)
     {
@@ -163,15 +168,83 @@ class OptionsSection extends BaseEntity implements IOptionsSection
                 return $section;
             }
         }
-        throw new RuntimeException(sprintf('Section %s does not contain %s subsection',
-            $this->title . "($this->domain)", $domain));
+        throw new OptionsSectionNotFoundException($domain, $this->caption . "($this->domain)");
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
+    public function getCaption()
+    {
+        return $this->caption;
+    }
+
+    /** @param string $caption */
+    public function setCaption($caption)
+    {
+        $this->caption = $caption;
+    }
+
     public function getDomain()
     {
         return $this->domain;
+    }
+
+    /** @param string $domain */
+    private function setDomain($domain = null)
+    {
+        if ($domain && !is_string($domain)) {
+            throw new InvalidArgumentException("Domain must be of type string.");
+        }
+        $this->domain = $domain;
+    }
+
+    /** @return string */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /** @param string $name */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+
+    public function getParentSection()
+    {
+        return $this->parentSection;
+    }
+
+    public function setParentSection(OptionsSection $parent = null)
+    {
+        $this->parentSection = $parent;
+        if ($parent) {
+            $this->setDomain(DomainLocator::concatFQN($parent->getFQN()));
+        } else {
+            $this->setDomain(null);
+        }
+    }
+
+    public function addSubsection(OptionsSection $section)
+    {
+        if (!$this->subsections->contains($section)) {
+            $this->subsections->add($section);
+        }
+        $section->setParentSection($this);
+    }
+
+    public function removeSubsection(OptionsSection $section)
+    {
+        $this->subsections->removeElement($section);
+        $section->setParentSection(null);
+    }
+
+    /**
+     * Returns fully qualified name. That is in most cases concatenated getDomain() and getName().
+     * @return string
+     */
+    public function getFQN()
+    {
+        return DomainLocator::concatFQN($this->getName(), $this->getDomain());
     }
 }
