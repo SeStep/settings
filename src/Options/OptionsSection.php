@@ -7,11 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
 use Kdyby\Doctrine\InvalidArgumentException;
-use Kdyby\Doctrine\NotImplementedException;
-use RuntimeException;
 use SeStep\Model\BaseEntity;
 use SeStep\SettingsInterface\DomainLocator;
-use SeStep\SettingsInterface\Exceptions\OptionsSectionNotFoundException;
+use SeStep\SettingsInterface\Exceptions\NotFoundException;
 use SeStep\SettingsInterface\Options\IOption;
 use SeStep\SettingsInterface\Options\IOptionsSection;
 use SeStep\SettingsInterface\Options\ReadOnlyOption;
@@ -84,6 +82,7 @@ class OptionsSection extends BaseEntity implements IOptionsSection
      * @param string $name
      * @param string $domain
      * @param bool $adjust_locator
+     * @throws NotFoundException
      * @return AOption
      */
     public function getOption($name, $domain = '', $adjust_locator = true)
@@ -107,19 +106,7 @@ class OptionsSection extends BaseEntity implements IOptionsSection
             }
         }
 
-        throw new RuntimeException("Option $name not found in section $this->domain");
-    }
-
-
-    /**
-     * @param mixed $value
-     * @param IOption|string $option
-     * @param $domain
-     * @return void
-     */
-    public function setValue($value, $option, $domain = '')
-    {
-        throw new NotImplementedException("To set option value use DoctrineOptions->setValue");
+        throw NotFoundException::option($name, $this->domain);
     }
 
     /**
@@ -134,6 +121,11 @@ class OptionsSection extends BaseEntity implements IOptionsSection
         return $option->getValues();
     }
 
+    /**
+     * @param string|IOption $option
+     * @param string $domain
+     * @return bool
+     */
     public function removeOption($option, $domain = '')
     {
         $name = is_string($option) ? $option : $option->getName();
@@ -159,7 +151,7 @@ class OptionsSection extends BaseEntity implements IOptionsSection
     /**
      * @param string $domain
      * @return OptionsSection
-     * @throws OptionsSectionNotFoundException Occurs when subsection of defined domain does not exist.
+     * @throws NotFoundException Occurs when subsection of defined domain does not exist.
      */
     public function getSection($domain)
     {
@@ -168,7 +160,7 @@ class OptionsSection extends BaseEntity implements IOptionsSection
                 return $section;
             }
         }
-        throw new OptionsSectionNotFoundException($domain, $this->caption . "($this->domain)");
+        throw NotFoundException::section($domain, $this->caption . "($this->domain)");
     }
 
     /** @return string */

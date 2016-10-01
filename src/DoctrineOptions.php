@@ -16,14 +16,14 @@ use SeStep\SettingsDoctrine\Options\OptionTypeBool;
 use SeStep\SettingsDoctrine\Options\OptionTypeInt;
 use SeStep\SettingsDoctrine\Options\OptionTypeString;
 use SeStep\SettingsInterface\DomainLocator;
-use SeStep\SettingsInterface\Exceptions\OptionNotFoundException;
-use SeStep\SettingsInterface\Exceptions\OptionsSectionNotFoundException;
+use SeStep\SettingsInterface\Exceptions\NotFoundException;
+use SeStep\SettingsInterface\Options\IEditableOptionsSection;
 use SeStep\SettingsInterface\Options\IOption;
 use SeStep\SettingsInterface\Options\IOptions;
 use SeStep\SettingsInterface\Options\IOptionsSection;
 use SeStep\SettingsInterface\Options\ReadOnlyOption;
 
-class DoctrineOptions extends BaseDoctrineService implements IOptions
+class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditableOptionsSection
 {
     private static $typeMap = [
         IOptions::TYPE_STRING => OptionTypeString::class,
@@ -53,6 +53,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
     public function getOptions()
     {
         $return = [];
+        /** @var AOption $option */
         foreach ($this->repository->findBy(['section' => null], ['name' => 'ASC']) as $option) {
             $return[$option->getFQN()] = new ReadOnlyOption($option);
         }
@@ -61,28 +62,32 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
     }
 
     /**
-     * @param string $name
+     * @param string|IOption $name
      * @param string|IOptionsSection $domain
      * @return AOption
-     * @throws OptionNotFoundException
+     * @throws NotFoundException
      */
     public function getOption($name, $domain = '')
     {
         $option = $this->findOption($name, $domain);
         if (!$option) {
-            throw new OptionNotFoundException($name, $domain);
+            throw NotFoundException::option($name, $domain);
         }
 
         return $option;
     }
 
     /**
-     * @param string $name
+     * @param string|IOption $name
      * @param string|IOptionsSection $domain
      * @return AOption
      */
     private function findOption($name, $domain = null)
     {
+        if($name instanceof IOption){
+            $name = $name->getName();
+        }
+
         $locator = DomainLocator::create($name, $domain);
 
         $section = $this->getSection($locator->domain);
@@ -97,6 +102,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
     /**
      * @param mixed $value
      * @param IOption|string $option
+     * @param string $domain
      * @return void
      * @throws RuntimeException in case the requested option does not exist
      */
@@ -129,17 +135,6 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
     }
 
     /**
-     * @param IOption|string $option
-     * @return void
-     */
-    public function removeOption($option, $domain = '')
-    {
-        $option = $this->getOption($option, $domain);
-
-        $this->em->remove($option);
-    }
-
-    /**
      * @return IOptionsSection[]
      */
     public function getSections()
@@ -154,7 +149,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
      * @param string $name
      * @param IOptionsSection|string $domain
      * @return IOptionsSection|null
-     * @throws OptionsSectionNotFoundException
+     * @throws NotFoundException
      */
     public function getSection($name = '', $domain = null)
     {
@@ -171,13 +166,24 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions
 
         $section = $this->sections->findOneBy($args);
         if (!$section) {
-            throw new OptionsSectionNotFoundException($locator);
+            throw NotFoundException::section($locator);
         }
 
         return $section;
     }
 
-    public function createOption($type, $name, $value, $caption, OptionsSection $section = null)
+    /**
+     * @param IOption|string $option
+     * @param string $domain
+     */
+    public function removeOption($option, $domain = '')
+    {
+        $option = $this->getOption($option, $domain);
+
+        $this->em->remove($option);
+    }
+
+    public function createOption($type, $name, $value, $caption, $section = null)
     {
         if (Strings::contains($name, IOptionsSection::DOMAIN_DELIMITER)) {
             throw new InvalidArgumentException('Option name must not contain section delimiter (' .

@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "sestep/settings-interface": "dev-master",
+    "sestep/general-settings": "dev-master",
     "sestep/doctrine-model": "dev-master"
   },
   "autoload": {
@@ -21,13 +21,16 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@github.com:sestep/settings-interface.git"
+      "url": "git@github.com:sestep/general-settings.git"
     },
     {
       "type": "vcs",
       "url": "git@github.com:sestep/doctrine-model.git"
     }
   ],
+  "provides":{
+    "sestep/general-settings-implementation": "dev-master"
+  },
   "suggest": {
     "sestep/settings-control": "For a Nette control implementation of settings user interface"
   }
