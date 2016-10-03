@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "sestep/general-settings": "dev-master",
+    "sestep/general-settings": "dev-feature/pools",
     "sestep/doctrine-model": "dev-master"
   },
   "autoload": {

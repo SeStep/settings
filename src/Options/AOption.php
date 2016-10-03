@@ -3,11 +3,12 @@
 namespace SeStep\SettingsDoctrine\Options;
 
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Entities\Attributes\Identifier;
+use Kdyby\Doctrine\InvalidArgumentException;
 use Nette\Utils\Strings;
 use SeStep\Model\BaseEntity;
+use SeStep\SettingsDoctrine\Pools\Pool;
 use SeStep\SettingsInterface\DomainLocator;
 use SeStep\SettingsInterface\Options\IOption;
 
@@ -39,6 +40,12 @@ abstract class AOption extends BaseEntity implements IOption
      * @ORM\JoinColumn(name="parent_section_id", referencedColumnName="id")
      */
     protected $section;
+
+    /**
+     * @var Pool
+     * @ORM\ManyToOne(targetEntity="SeStep\DoctrineOptions\Pools\Pool")
+     */
+    protected $pool;
 
     /**
      * AOption constructor.
@@ -124,11 +131,28 @@ abstract class AOption extends BaseEntity implements IOption
     public abstract function getType();
 
     /**
+     * @param null|Pool $pool
+     */
+    public function setPool($pool)
+    {
+        if (!$pool) {
+            $this->pool = null;
+
+            return;
+        }
+        if (!($pool instanceof Pool)) {
+            throw new InvalidArgumentException("Pool argument has to be null or instance of  " . Pool::class);
+        }
+
+        $this->pool = $pool;
+    }
+
+    /**
      * @return boolean
      */
     public function hasValues()
     {
-        return false;
+        return $this->pool && !$this->pool->isEmpty();
     }
 
     /**
@@ -136,7 +160,7 @@ abstract class AOption extends BaseEntity implements IOption
      */
     public function getValues()
     {
-        return [];
+        return $this->pool ? $this->pool->getValues() : [];
     }
 
     public static function sanitizeName($name)
