@@ -13,13 +13,13 @@ use SeStep\SettingsInterface\Options\IOptions;
  */
 class OptionTypeBool extends OptionTypeInt
 {
-    /** @return boolean */
+    /** @return int */
     public function getValue()
     {
-        return (boolean)$this->int_val;
+        return (int)$this->int_val;
     }
 
-    /** @param boolean $bool */
+    /** @param int $bool */
     public function setValue($bool)
     {
         $this->int_val = (int)((boolean)$bool);

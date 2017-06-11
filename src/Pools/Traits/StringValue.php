@@ -9,7 +9,7 @@ trait StringValue
 {
     /**
      * @var string|null
-     * @ORM\Column(type=
+     * @ORM\Column(type="string")
      */
     protected $value;
 

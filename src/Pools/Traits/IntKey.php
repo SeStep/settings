@@ -9,7 +9,7 @@ trait IntKey
 {
     /**
      * @var int
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="integer")
      */
     protected $key;
 

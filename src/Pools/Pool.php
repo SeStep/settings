@@ -39,8 +39,7 @@ class Pool extends BaseEntity implements IPool
 
     /**
      * @var APoolItem[]|Collection
-     * @ORM\OneToMane(targetEntity="APoolItem")
-     * @ORM\IndexBy("key")
+     * @ORM\OneToMany(targetEntity="APoolItem", mappedBy="pool", indexBy="key")
      */
     protected $items;
 

@@ -43,7 +43,7 @@ abstract class AOption extends BaseEntity implements IOption
 
     /**
      * @var Pool
-     * @ORM\ManyToOne(targetEntity="SeStep\DoctrineOptions\Pools\Pool")
+     * @ORM\ManyToOne(targetEntity="SeStep\SettingsDoctrine\Pools\Pool")
      */
     protected $pool;
 

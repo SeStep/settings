@@ -5,6 +5,8 @@ namespace SeStep\SettingsDoctrine\Pools;
 use SeStep\SettingsDoctrine\Pools\Traits\IntKey;
 use SeStep\SettingsDoctrine\Pools\Traits\StringValue;
 
+use Doctrine\ORM\Mapping as ORM;
+
 
 /**
  * Class PoolItemString

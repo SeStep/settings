@@ -72,7 +72,7 @@ class OptionsSection extends BaseEntity implements IOptionsSection
     {
         $return = [];
         foreach ($this->options as $option) {
-            $return[$option->name] = new ReadOnlyOption($option);
+            $return[$option->getName()] = new ReadOnlyOption($option);
         }
 
         return $return;
@@ -128,7 +128,14 @@ class OptionsSection extends BaseEntity implements IOptionsSection
      */
     public function removeOption($option, $domain = '')
     {
-        $name = is_string($option) ? $option : $option->getName();
+        if($option instanceof IOption) {
+            $name = $option->getFQN();
+        } elseif (is_string($option)) {
+            $name = "$domain.$option";
+        } else {
+            throw new \InvalidArgumentException("Option must be either instance of IOption or a string");
+        }
+
         foreach ($this->options as $opt) {
             if ($opt->getName() == $name) {
                 $this->options->removeElement($opt);
