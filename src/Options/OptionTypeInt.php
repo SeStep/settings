@@ -23,14 +23,14 @@ class OptionTypeInt extends AOption
 	}
 
 	/**
-	 * @param int $int
+	 * @param int $value
 	 */
-	public function setValue($int)
+	public function setValue($value)
 	{
-		if(!is_integer($int)){
-			throw new InvalidArgumentException('Int option must not receive a ' . gettype($int) .' value');
+		if(!is_numeric($value)){
+			throw new InvalidArgumentException(sprintf('Int option must not receive value \'%s\' of type %s', gettype($value), $value));
 		}
-		$this->int_val = $int;
+		$this->int_val = (int)$value;
 	}
 
 

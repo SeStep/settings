@@ -100,11 +100,13 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
     }
 
     /**
-     * @param mixed $value
      * @param IOption|string $option
-     * @param string $domain
+     * @param mixed          $value
+     * @param string         $domain
      * @return void
-     * @throws RuntimeException in case the requested option does not exist
+     *
+     * @throws NotFoundException
+     * @throws \Exception
      */
     public function setValue($option, $value, $domain = '')
     {
