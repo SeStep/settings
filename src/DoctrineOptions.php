@@ -27,8 +27,8 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
 {
     private static $typeMap = [
         IOptions::TYPE_STRING => OptionTypeString::class,
-        IOptions::TYPE_INT => OptionTypeInt::class,
-        IOptions::TYPE_BOOL => OptionTypeBool::class,
+        IOptions::TYPE_INT    => OptionTypeInt::class,
+        IOptions::TYPE_BOOL   => OptionTypeBool::class,
     ];
     /** @var EntityRepository */
     protected $sections;
@@ -62,7 +62,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
     }
 
     /**
-     * @param string|IOption $name
+     * @param string|IOption         $name
      * @param string|IOptionsSection $domain
      * @return AOption
      * @throws NotFoundException
@@ -78,13 +78,13 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
     }
 
     /**
-     * @param string|IOption $name
+     * @param string|IOption         $name
      * @param string|IOptionsSection $domain
      * @return AOption
      */
     private function findOption($name, $domain = null)
     {
-        if($name instanceof IOption){
+        if ($name instanceof IOption) {
             $name = $name->getName();
         }
 
@@ -100,15 +100,15 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
     }
 
     /**
-     * @param IOption|string $option
      * @param mixed          $value
+     * @param IOption|string $option
      * @param string         $domain
      * @return void
      *
      * @throws NotFoundException
      * @throws \Exception
      */
-    public function setValue($option, $value, $domain = '')
+    public function setValue($value, $option, $domain = '')
     {
         if (!($option instanceof AOption)) {
             if (!is_string($option)) {
@@ -125,7 +125,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
 
     /**
      * @param IOption|string $name
-     * @param string $domain
+     * @param string         $domain
      * @return mixed
      * @throws RuntimeException in case the requested option does not exist
      */
@@ -148,7 +148,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
     }
 
     /**
-     * @param string $name
+     * @param string                 $name
      * @param IOptionsSection|string $domain
      * @return IOptionsSection|null
      * @throws NotFoundException
@@ -176,7 +176,7 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
 
     /**
      * @param IOption|string $option
-     * @param string $domain
+     * @param string         $domain
      */
     public function removeOption($option, $domain = '')
     {
@@ -212,7 +212,14 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
         return $option;
     }
 
-    public function createSection($name, $caption = '', OptionsSection $parent = null)
+    /**
+     * @param string              $name
+     * @param string              $caption
+     * @param OptionsSection|null $parent
+     *
+     * @return OptionsSection
+     */
+    public function findOrCreateSection($name, $caption = '', OptionsSection $parent = null)
     {
         $locator = DomainLocator::create($name, $parent);
 
@@ -220,35 +227,18 @@ class DoctrineOptions extends BaseDoctrineService implements IOptions, IEditable
             throw new LogicException("Section domain $locator->fqn would result in subsection level of " .
                 "$locator->depth, maximum of $this->maxSubsectionLevel is allowed.");
         }
+        if (!$parent && $locator->domain) {
+            $parent = $this->findOrCreateSection($locator->domain);
+        }
 
         $section = $this->sections->findOneBy(['name' => $locator->name, 'domain' => $locator->domain]);
-        if ($section) {
-            return $section;
+        if (!$section) {
+            $section = new OptionsSection($locator->name, $parent);
         }
-
-        $return = $section = new OptionsSection($locator->name);
         $section->setCaption($caption);
-        $save = [$section];
+        $this->save($section);
 
-        while ($locator->domain) {
-            $locator = DomainLocator::create($locator->domain);
-
-            $ancestor = new OptionsSection($locator->name);
-            $ancestor->addSubsection($section);
-
-            $save[] = $ancestor;
-
-            $section = $ancestor;
-        }
-
-        if ($parent) {
-            $parent->addSubsection($section);
-            $save[] = $parent;
-        }
-
-        $this->save($save);
-
-        return $return;
+        return $section;
     }
 
     /**
